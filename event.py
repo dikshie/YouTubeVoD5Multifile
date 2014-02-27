@@ -54,6 +54,7 @@ class Timeline(object):
         idx=0
         idx=self.search_event_pos(partial_e_o)
         self.timeline.pop(idx)
+        return idx
 
         #idx = 0
         #for idx, ev in enumerate(self.timeline):
