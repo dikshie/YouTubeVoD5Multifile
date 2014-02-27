@@ -21,6 +21,7 @@ class Peer(object):
         self.dn_bw = dn_bw
         self.type = 'Peer'
         self.upload_bandwidth = 0
+        self.content_baru = []
         #self.temporary_check=dict()
              
     def __repr__(self):
@@ -125,7 +126,7 @@ class Peer(object):
         #ada di content[2]+time_cur
         
         content[2]=3600
-        content_baru=[content[0], content[1], content[2]+time_cur ]
+        self.content_baru=[content[0], content[1], content[2]+time_cur ]
         self.cache_entries[content_id]=content_baru
         
         #self.time_cur = time_cur
@@ -153,9 +154,19 @@ class Peer(object):
         mengubah content expiry time, misalnya saat upload content yang akan expire waktu content sedang diupload
         """
         
-        if ((content[1]*8)/(self.up_bw/1000.0)) > content[2]:
-            new_expire_event = event.Event(event.REMOVE_CONTENT, time_cur+((content[1]*8)/(self.up_bw/1000.0)), self, self.remove_content, [content[0]])
-            old_expire_event = event.Event(event.REMOVE_CONTENT, 0, self, self.remove_content, [content[0]])
+        #ambil informasi expiry time content
+        content_id = content[0]
+        
+        #load time_expiry dari self.cache_entries 
+        time_lama = self.cache_entries[content_id][2]
+
+        #hitung durasi dan time_baru
+        durasi = (content[1]*8)/(self.up_bw/1000.0)
+        time_baru = time_cur + durasi
+
+        if time_baru > time_lama:  #durasi download > cachetime
+            new_expire_event = event.Event(event.REMOVE_CONTENT, time_baru, self, self.remove_content, [content[0]])
+            old_expire_event = event.Event(event.REMOVE_CONTENT, time_lama, self, self.remove_content, [content[0]])
             return [new_expire_event, old_expire_event]
         else:
             return None, None

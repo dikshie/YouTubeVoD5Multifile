@@ -10,6 +10,7 @@ import cdn
 import math
 import cPickle as pickle
 from datetime import datetime
+import copy
 
 #scipy.random.seed(1024)
 
@@ -136,7 +137,7 @@ if __name__ == '__main__':
         if file_list and not event_list:
             extend_event_list(file_list.pop(0))
 
-            #pass
+            
         #print str(next_event)        
         new_events,cancelled_events = next_event.execute()
         

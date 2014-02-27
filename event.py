@@ -48,20 +48,27 @@ class Timeline(object):
         2. event.action
         3. event.action_param
         """
-        idx = 0
-        for idx, ev in enumerate(self.timeline):
-            if ev.actor == partial_e_o.actor and ev.action == partial_e_o.action:
-                param_equal = True
-                for p_idx, p_obj in enumerate(partial_e_o.action_params):
-                    if p_obj != ev.action_params[p_idx]:
-                        param_equal = False
-                        break
-                if param_equal:
-                    break
-        else:
-            return -1
+        if not self.timeline:
+            return 0
+
+        idx=0
+        idx=self.search_event_pos(partial_e_o)
         self.timeline.pop(idx)
-        return idx
+
+        #idx = 0
+        #for idx, ev in enumerate(self.timeline):
+        #    if ev.actor == partial_e_o.actor and ev.action == partial_e_o.action:
+        #        param_equal = True
+        #        for p_idx, p_obj in enumerate(partial_e_o.action_params):
+        #            if p_obj != ev.action_params[p_idx]:
+        #                param_equal = False
+        #                break
+        #        if param_equal:
+        #            break
+        #else:
+        #    return -1
+        #self.timeline.pop(idx)
+        #return idx
         
     def get_next_event(self):
         if self.timeline:

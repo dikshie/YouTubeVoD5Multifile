@@ -7,7 +7,7 @@ import copy
 from scipy.stats import expon
 from scipy.stats import beta 
 import cPickle as pickle
-#from multiprocessing import Pool
+from multiprocessing import Pool
 
 start = 0 #mulai waktu dari 0
 end1= (30*24*3600) #1 bulan
@@ -22,13 +22,7 @@ expected=100 #expected 100 videos/hour
 multiple_of=range(200000)
 numprocessor=2
 
-#def beta_cdf(x):
-#    return beta.cdf(x,2,18,loc=0,scale=skala)
-    
 
-#def beta_pdf(x):
-#    return beta.pdf(x,2,18,loc=0,scale=skala)
-    
 
 #video catalog generator utk parameter alpha,beta,timeuplaoded sudah OK.
 while i < jam :     
@@ -101,11 +95,21 @@ video_id_terakhir = len(catalog) - 1
 temp=catalog[video_id_terakhir]['uploaded'] #dalam detik
 akhir=skala+temp #dalam detik
 
+
+def betacdf(j,alpha_a,beta_a,skala):
+    return beta.cdf(j,alpha_a,beta_a,loc=0, scale=skala)
+
+def betapdf(j,alpha_a,beta_a,skala):
+    return beta.pdf(j,alpha_a,beta_a,loc=0, scale=skala)
+
 while j < akhir:
     #simulasi dalam detik
     #utk tiap video:
     
     if j >= multiple_of[0]*7200:
+
+        TASKS = [ (betacdf,(j, catalog[k]['alpha'],catalog[k]['beta'],skala) for k in range(numbervideo)]+[ (betapdf,(j, catalog[k]['alpha'],catalog[k]['beta'],skala) for k in range(numbervideo)]
+        
         for k in range(numbervideo):
             alpha_a=catalog[k]['alpha']
             beta_a=catalog[k]['beta']
