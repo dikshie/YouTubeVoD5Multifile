@@ -28,7 +28,7 @@ event_list = event.Timeline()
 this_cdn = cdn.CDN(contents)
 numpeer = 10000 
 #skala = 183*24*3600 #1/2 tahun * 366 hari * 24 jam * 3600 detik
-skala=30*24*3600
+skala=2*30*24*3600
 expected = 360 #360 peer per hour 
 multiple_of = range(100000)
 interval = 7200 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     skala = int(skala)
 
 
-    file_list = [ 'request_events-1bulan-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
+    file_list = [ 'request_events-2bulan-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
     print file_list
 
     
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         event_list.append_event(ev)
 
         if (counter%TIMELINE_LENGTH)==TIMELINE_LENGTH-1:
-            filename='request_events-1bulan-'+ str(counter+1)
+            filename='request_events-2bulan-'+ str(counter+1)
             file_list.append(filename)
             with open(filename, 'wb') as f:
                 event_list.marshall()
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         counter+=1
 
     # dump the last timelines
-    filename='request_events-1bulan-'+ str(counter)
+    filename='request_events-2bulan-'+ str(counter)
     file_list.append(filename)
     with open(filename, 'wb') as f:
         event_list.marshall()
