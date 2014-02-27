@@ -14,7 +14,7 @@ from datetime import datetime
 #scipy.random.seed(1024)
 
 #random.seed(1)
-contents = {
+#contents = {
  1:[1,1000.0,3600],  2:[ 2,1000.0,3600], 3:[3,1000.0,3600],  4:[ 4,1000.0,3600], 5:[ 5,1000.0,3600], 6:[ 6,1000.0,3600], 7:[ 7,1000.0,3600], 8:[ 8,1000.0,3600],  
  9:[9,1000.0,3600], 10:[10,1000.0,3600],11:[11,500.0,1800], 12:[12,500.0,1800], 13:[13,500.0,1800], 14:[14,500.0,1800], 15:[15,500.0,1800], 16:[16,500.0,1800], 17:[17,500.0,1800], 18:[18,500.0,1800], 19:[19,500.0,1800], 20:[20,500.0,1800], 21:[21,400.0,1200], 22:[22,400.0,1200], 23:[23,400.0,1200], 24:[24,400.0,1200], 25:[25,400.0,1200], 26:[26,400.0,1200], 27:[27,400.0,1200], 28:[28,400.0,1200], 29:[29,400.0,1200], 30:[30,400.0,1200]     
 } 
@@ -37,6 +37,18 @@ counter = 0
 TIMELINE_LENGTH = 24*3600
 
 if __name__ == '__main__':
+    #baca file dari catalog.pickle yng sebelumnya digenerate oleh catalog-generator
+
+    #open catalog
+    with open('catalog.pickle', 'rb') as handle:
+        catalog = pickle.load(handle)
+    handle.close()
+
+    
+
+
+    this_cdn = cdn.CDN(contents)
+
 
     # generate peers
     peer_list = []
@@ -58,6 +70,11 @@ if __name__ == '__main__':
 
     request_list_size = 0
     skala = int(skala)
+
+
+    
+
+
 
 
     file_list = [ 'request_events-1bulan-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
