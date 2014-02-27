@@ -31,7 +31,7 @@ numpeer = 10000
 skala=30*24*3600
 expected = 360 #360 peer per hour 
 multiple_of = range(100000)
-interval = (7200) 
+interval = 7200 
 counter = 0
 
 TIMELINE_LENGTH = 24*3600
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         peer_list.append(np)
     this_cdn.set_peer_list(peer_list)
     
-    print 'masuk generate request'
+    print ('masuk generate request')
 
 
     # generate request events
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         event_list.append_event(ev)
 
         if (counter%TIMELINE_LENGTH)==TIMELINE_LENGTH-1:
-            filename='request_events-3600-'+ str(counter+1)
+            filename='request_events-1bulan-'+ str(counter+1)
             file_list.append(filename)
             with open(filename, 'wb') as f:
                 event_list.marshall()
@@ -90,7 +90,7 @@ if __name__ == '__main__':
         counter+=1
 
     # dump the last timelines
-    filename='request_events-3600-'+ str(counter)
+    filename='request_events-1bulan-'+ str(counter)
     file_list.append(filename)
     with open(filename, 'wb') as f:
         event_list.marshall()
@@ -166,5 +166,5 @@ if __name__ == '__main__':
         counter+=1 
     print 'finished simulation'
     """
-    
+
         
