@@ -24,41 +24,43 @@ upload_bw = 1000.0 #100kbps
 download_bw = 1000.0 #1Mbps = 1000Kbps
 lamb = 1.2
 event_list = event.Timeline()
-numpeer = 10000 
+#this_cdn = cdn.CDN(contents)
+numpeer = 100000 
 #skala = 183*24*3600 #1/2 tahun * 366 hari * 24 jam * 3600 detik
-skala=6*3600
+skala=2*30*24*3600
 expected = 360 #360 peer per hour 
 multiple_of = range(100000)
 interval = (7200) 
 counter = 0
 
-TIMELINE_LENGTH = 1*3600
+
+
+#content dari catalog
+#buka file catalog
+with open('catalog.pickle', 'rb') as handle:
+        catalog = pickle.load(handle)
+handle.close()
+jumlahvideo = len(catalog)
+print jumlahvideo
+
+#format catalog:
+#catalog[video_id]={'video_id':video_id, 'uploaded':start, 'size':size, 'viewcounterminus':terminus, 'alpha':alpha_ , 'beta':beta_, 'pdf':{}, 'cdf':{} 
+#format asal:
+#{videoi-d]:[video-id,size,cache]}
+
+#ubah ke model lama
+contents={}
+for key,value in catalog.iteritems():
+    contents[key]=[ key, value['uploaded'], float(value['size']), 3600.0 ]
+    #print key, value['uploaded'], value['size']
+
+#inisialisasi class CDN
+this_cdn = cdn.CDN(contents)
+
+
+TIMELINE_LENGTH = 24*3600
 
 if __name__ == '__main__':
-
-    skala = int(skala)
-
-    #buka file catalog konversi ke format lama
-    with open('catalog.pickle', 'rb') as handle:
-        catalog = pickle.load(handle)
-    handle.close()
-    jumlahvideo = len(catalog)
-
-    #format baru:
-    #catalog[video_id]={'video_id':video_id, 'uploaded':start, 'size':size, 'viewcounterminus':terminus, 'alpha':alpha_ , 'beta':beta_, 'pdf':{}, 'cdf':{} 
-    #print catalog[0]['uploaded'], catalog[0]['size']
-    #contoh: {1: [1, 34.433471105806156, 258.0, 3600.0] }
-    #format lama:
-    #{videoi-d]:[video-id,size,cache]}
-    contents={}
-    for key,value in catalog.iteritems():
-        contents[key]=[ key, value['uploaded'], float(value['size']), 3600.0 ]
-    #print key, value['uploaded'], value['size']
-    #contoh: {1: [1, 34.433471105806156, 258.0, 3600.0] }
-
-    #inisialisasi kelas CDN
-    this_cdn = cdn.CDN(contents)
-
 
     # generate peers
     peer_list = []
@@ -66,10 +68,77 @@ if __name__ == '__main__':
         np = peer.Peer(p, this_cdn, cache_size, upload_bw, download_bw)
         peer_list.append(np)
     this_cdn.set_peer_list(peer_list)
-
-    file_list = [ 'request_events-4jam-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
-    print file_list
     
+    #print 'masuk generate request'
+    # generate request events
+    #request_events = shelve.open('request_events-3600-60')
+    #for k in request_events:
+    #    del request_events[k]
+    #request_events.sync()
+    #request_events['heads'] = [0]
+    #request_events['0'] = []
+
+    request_list_size = 0
+    skala = int(skala)
+
+
+    file_list = [ 'request_events-2bulan-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
+    print file_list
+
+    """
+    for ev in range(skala):      
+        tx = random.expovariate(expected) # exponential inter-arrival
+        time_cur = time_cur + tx*expected#current time
+        #block multi file
+        #time_cur = round(time_cur, 5)
+        actor = random.choice(peer_list) # number of nodes
+        #print 'actor: ', actor
+     
+        content_id = random.randint(1,30) # requested file
+    
+        #event.request, time, actor, actor action, action parameters
+        ev = event.Event(event.REQUEST, time_cur, actor, actor.request_to_cdn, [content_id, time_cur])
+        event_list.append_event(ev)
+
+        if (counter%TIMELINE_LENGTH)==TIMELINE_LENGTH-1:
+            filename='request_events-3600-'+ str(counter+1)
+            file_list.append(filename)
+            with open(filename, 'wb') as f:
+                event_list.marshall()
+                pickle.dump(event_list, f)
+            event_list.timeline = []
+            print counter, str(datetime.now())
+
+        counter+=1
+
+    # dump the last timelines
+    filename='request_events-3600-'+ str(counter)
+    file_list.append(filename)
+    with open(filename, 'wb') as f:
+        event_list.marshall()
+        pickle.dump(event_list, f)
+    event_list.timeline = []
+    print counter, str(datetime.now())
+    
+    """
+    #raw_input('Enter')
+
+    #print
+
+    #event_timeline = event.Timeline()
+    #for fn in file_list:
+    #    with open(fn, 'rb') as f:
+    #        et = pickle.load(f)
+    #        et.unmarshall(peer_list)
+    #        print et
+    #        event_timeline.timeline += et.timeline
+
+    #raw_input('Return')
+    #print '-->' , req_head_list
+    #print 'finished request, enter simulation main loop'
+    #print 'time_cur akhir', time_cur
+
+
     def extend_event_list(filename):
         with open(filename, 'rb') as f:
             print 'LOAD', filename

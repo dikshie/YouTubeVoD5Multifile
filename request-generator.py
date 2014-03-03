@@ -8,16 +8,9 @@ import peer
 import event
 import cdn
 import math
+import copy
 import cPickle as pickle
 from datetime import datetime
-
-#scipy.random.seed(1024)
-
-#random.seed(1)
-#contents = {
-#1:[1,1000.0,3600],  2:[ 2,1000.0,3600], 3:[3,1000.0,3600],  4:[ 4,1000.0,3600], 5:[ 5,1000.0,3600], 6:[ 6,1000.0,3600], 7:[ 7,1000.0,3600], 8:[ 8,1000.0,3600],  
-#9:[9,1000.0,3600], 10:[10,1000.0,3600],11:[11,500.0,1800], 12:[12,500.0,1800], 13:[13,500.0,1800], 14:[14,500.0,1800], 15:[15,500.0,1800], 16:[16,500.0,1800], 17:[17,500.0,1800], 18:[18,500.0,1800], 19:[19,500.0,1800], 20:[20,500.0,1800], 21:[21,400.0,1200], 22:[22,400.0,1200], 23:[23,400.0,1200], 24:[24,400.0,1200], 25:[25,400.0,1200], 26:[26,400.0,1200], 27:[27,400.0,1200], 28:[28,400.0,1200], 29:[29,400.0,1200], 30:[30,400.0,1200]     
-#} 
 
 time_cur = 0
 cache_size = 1000.0 #100M
@@ -28,7 +21,7 @@ event_list = event.Timeline()
 #this_cdn = cdn.CDN(contents)
 numpeer = 10000 
 #skala = 183*24*3600 #1/2 tahun * 366 hari * 24 jam * 3600 detik
-skala=24*3600
+skala=6*3600
 expected = 360 #360 peer per hour 
 multiple_of = range(100000)
 interval = (7200) 
@@ -38,10 +31,11 @@ vektor_viewcr={}
 dict_for_resume={}
 results_p = {}
 
-TIMELINE_LENGTH = 24*3600
+TIMELINE_LENGTH = 1*3600
+
 
 if __name__ == '__main__':
-
+    #baca file dari catalog.pickle yng sebelumnya digenerate oleh catalog-generator
     #open catalog
     with open('catalog.pickle', 'rb') as handle:
         catalog = pickle.load(handle)
@@ -57,10 +51,6 @@ if __name__ == '__main__':
     this_cdn.set_peer_list(peer_list)
     
 
-    #baca file dari catalog.pickle yng sebelumnya digenerate oleh catalog-generator
-
-    
-
     def WeightedPick(d):
         r = random.uniform(0, sum(d.itervalues()))
         s = 0.0
@@ -70,13 +60,10 @@ if __name__ == '__main__':
         return k
 
 
-    
-
-
     request_list_size = 0
     skala = int(skala)
 
-    file_list = [ 'request_events-1hari-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
+    file_list = [ 'request_events-4jam-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
     print file_list
 
     
@@ -88,10 +75,9 @@ if __name__ == '__main__':
 
         #pemilihan content_id yg bikin mumet
         if  time_cur >= multiple_of[0]*interval:
-
             selang=multiple_of[0]*interval
             #mulai hitung beta dan alpha utk tiap video
-            for j in range(jumlahvideo):
+            for j in range(0,jumlahvideo):
                 #hitung vektor viewcount dan dan viewrate utk tiap video
                 #format vektor = {'video_id':video_id, 'view_count':viewcount, 'viewrate': viewrate}
 
@@ -115,16 +101,21 @@ if __name__ == '__main__':
 
             for key2, value in vektor_viewcr.iteritems():
                 cview=value['view_count'].pop()
-                cview=cview*0.7
+                cview2=cview*7
                 rview=value['view_rate'].pop()
-                rview=rview*0.3
-                newvalue=cview+rview
+                rview2=rview*3
+                newvalue=cview2+rview2
                 newvalue=int(newvalue)
                 dict_for_resume[key2]=newvalue 
-
-        content_id = WeightedPick(dict_for_resume)
-        print counter, content_id
-
+                #dict_for_resume2[key2]=rview
+        
+            p = WeightedPick(dict_for_resume)
+            content_id = copy.deepcopy(p)
+            #results_p[p] = results_p.get(p, 0) + 1
+        #print counter , p 
+        if time_cur > (interval)*(multiple_of[0]+1):
+            #print i, waktu
+            multiple_of.pop(0) 
 
         #content_id = random.randint(1,30) # requested file
     
@@ -133,7 +124,7 @@ if __name__ == '__main__':
         event_list.append_event(ev)
 
         if (counter%TIMELINE_LENGTH)==TIMELINE_LENGTH-1:
-            filename='request_events-1hari-'+ str(counter+1)
+            filename='request_events-4jam-'+ str(counter+1)
             file_list.append(filename)
             with open(filename, 'wb') as f:
                 event_list.marshall()
@@ -144,10 +135,11 @@ if __name__ == '__main__':
         counter+=1
 
     # dump the last timelines
-    filename='request_events-1hari-'+ str(counter)
+    filename='request_events-4jam-'+ str(counter)
     file_list.append(filename)
     with open(filename, 'wb') as f:
         event_list.marshall()
         pickle.dump(event_list, f)
     event_list.timeline = []
     print counter, str(datetime.now())
+    #print len(catalog)

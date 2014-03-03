@@ -36,11 +36,11 @@ class CDN(object):
         """
         return self.video_tracking_time_requested[content_id]
 
-    def get_content(self, content_id, time_cur):
+    def get_content(self, content_id):
         """
         reply dengan content atau redirect
         """
-        this_content = self.content_catalog[content_id]
+        this_content=self.content_catalog[content_id]
         tracked_peer = self.get_peer_tracking(content_id)
 
         #disini harus melakukan tracking waktu terakhir video-id direquest dan jumlah direquest
@@ -105,3 +105,6 @@ class CDN(object):
         else:
             return None
                     
+                    
+                    
+ 
