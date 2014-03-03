@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import bisect
 
 class Timeline(object):
     def __init__(self):
@@ -41,35 +42,40 @@ class Timeline(object):
         except:
             pass
         
-    def cancel_event(self, partial_e_o):
+    def cancel_event(self, event_object):
         """
         untuk menghapus suatu event, perlu:
         1. event.actor
         2. event.action
         3. event.action_param
         """
-        #if not self.timeline:
-        #    return 0
-
-        #idx=0
-        #idx=self.search_event_pos(partial_e_o)
-        #self.timeline.pop(idx)
-        #return idx
-
-        idx = 0
-        for idx, ev in enumerate(self.timeline):
-            if ev.actor == partial_e_o.actor and ev.action == partial_e_o.action:
-                param_equal = True
-                for p_idx, p_obj in enumerate(partial_e_o.action_params):
-                    if p_obj != ev.action_params[p_idx]:
-                        param_equal = False
-                        break
-                if param_equal:
-                    break
-        else:
-            return -1
+        templist=[]
+        if not self.timeline:
+            self.timeline.append(event_object)
+            return 0
+        panjang=len(self.timeline)
+        for i in range(panjang):
+            templist.append(self.timeline[i].time)
+        
+        idx=bisect.bisect_left(templist, event_object.time)
+        #print 'IDX' , idx
         self.timeline.pop(idx)
         return idx
+        
+        #idx = 0
+        #for idx, ev in enumerate(self.timeline):
+        #    if ev.actor == partial_e_o.actor and ev.action == partial_e_o.action:
+        #        param_equal = True
+        #        for p_idx, p_obj in enumerate(partial_e_o.action_params):
+        #            if p_obj != ev.action_params[p_idx]:
+        #                param_equal = False
+        #                break
+        #        if param_equal:
+        #            break
+        #else:
+        #    return -1
+        #self.timeline.pop(idx)
+        #return idx
         
     def get_next_event(self):
         if self.timeline:
@@ -141,3 +147,4 @@ UPLOAD_DONE = 4
 CACHE_CONTENT = 5
 REMOVE_CONTENT = 6  
 UPDATE_STATE = 7
+REMOVE_CONTENT_DUMMY = 8
