@@ -12,6 +12,10 @@ class CDN(object):
         self.peer_tracking = dict()
         self.video_tracking_time_requested = dict()
         self.video_tracking_number_requested = dict()
+        self.cdnhitcounter = 0
+        self.peerhitcounter = 0
+        self.peertraffic = 0
+        self.cdntraffic = 0
         
     def set_peer_list(self, peer_list):
         self.peer_list = peer_list
@@ -30,20 +34,23 @@ class CDN(object):
         #print self.video_tracking_number_requested
         return self.video_tracking_number_requested[content_id]
 
+
+
     def get_video_last_time_requested(self, content_id):
         """
         ambil waktu terakhir video direquest
         """
         return self.video_tracking_time_requested[content_id]
 
-    def get_content(self, content_id, time_cur):
+
+
+    def get_content(self, peer_id, content_id, time_cur):
         """
         reply dengan content atau redirect
         """
-        this_content = self.content_catalog[content_id]
+        this_content=self.content_catalog[content_id]
         tracked_peer = self.get_peer_tracking(content_id)
 
-        #disini harus melakukan tracking waktu terakhir video-id direquest dan jumlah direquest
         #rekam waktu video direquested
         self.video_tracking_time_requested[content_id]=time_cur
 
@@ -51,13 +58,20 @@ class CDN(object):
         self.video_tracking_number_requested[content_id] = self.video_tracking_number_requested.get(content_id,0)+1
         #print self.video_tracking_number_requested
         
-        
+
+        #peer excesive tracking
+        #{peer_id: {video_id:[time_1, time_2], video_id: [time_1, time_2] , dst nya  }
+
         if tracked_peer:
             #print 'tracked_peer', tracked_peer , 'content_id', content_id
+            #print 'p'
+            self.peerhitcounter += 1
             return [None, tracked_peer]
             
         #jika content tidak ada di peer (None) maka kembalikan langsung dari CDN.
         else:
+            #print 'cdnhit', self.cdnhitcounter
+            self.cdnhitcounter += 1
             return [this_content, None]
     
         
@@ -76,6 +90,7 @@ class CDN(object):
             self.peer_tracking[peer_id]['cache_content'][content_id] = 1
             
         if type == 'REMOVE_CACHE':
+            #print 'cdn', peer_id, content_id
             del self.peer_tracking[peer_id]['cache_content'][content_id]
             
         if type == 'UPLOADING':
@@ -105,3 +120,6 @@ class CDN(object):
         else:
             return None
                     
+                    
+                    
+ 

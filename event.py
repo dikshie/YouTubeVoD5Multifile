@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import bisect
+import collections
 
 class Timeline(object):
     def __init__(self):
@@ -8,40 +9,69 @@ class Timeline(object):
     def __str__(self):
          return str(self.timeline)
 
-    def search_event_pos(self, event_object):
-        NOT_FOUND = -1
-        lo, hi = 0, len(self.timeline)-1
-        lo_event = self.timeline[0]
-        hi_event = self.timeline[hi]
-        while lo <= hi:
-            #print 'CURPOS',lo,hi
-            mid = int((lo + hi)/2)
+    #def search_event_pos(self, event_object):
+    #    NOT_FOUND = -1
+    #    lo, hi = 0, len(self.timeline)-1
+    #    lo_event = self.timeline[0]
+    #    hi_event = self.timeline[hi]
+    #    while lo <= hi:
+    #        #print 'CURPOS',lo,hi
+    #        mid = int((lo + hi)/2)
+    #        if self.timeline[mid].time < event_object.time:
+    #            lo = mid + 1
+    #        elif self.timeline[mid].time > event_object.time:
+    #            hi = mid - 1
+    #        else:
+    #            return min(lo,hi)
+    #            
+    #   return min(lo,hi)
+
+
+    def search_event_pos2(self, event_object):
+        lo,hi = 0, len(self.timeline)
+        while lo < hi:
+            mid = (lo+hi)//2
             if self.timeline[mid].time < event_object.time:
                 lo = mid + 1
-            elif self.timeline[mid].time > event_object.time:
-                hi = mid - 1
             else:
-                return min(lo,hi)
-                
-        return min(lo,hi)
+                hi = mid
+        return lo
 
          
+    # def add_event2(self, event_object):
+    #     try:
+    #         if not self.timeline:
+    #             self.timeline.append(event_object)
+    #             return 0
+                
+    #         idx = self.search_event_pos(event_object)
+    #         if idx == len(self.timeline)-1:
+    #             self.timeline.append(event_object)
+    #         else:
+    #             self.timeline.insert(idx+1, event_object)
+                
+    #         return idx+1
+    #     except:
+    #         pass
+    #     for i in range(len(self.timeline)):    
+    #         print self.timeline[i].time
+    
     def add_event(self, event_object):
         try:
             if not self.timeline:
                 self.timeline.append(event_object)
                 return 0
                 
-            idx = self.search_event_pos(event_object)
-            if idx == len(self.timeline)-1:
-                self.timeline.append(event_object)
-            else:
-                self.timeline.insert(idx+1, event_object)
-                
-            return idx+1
+            idx = self.search_event_pos2(event_object)
+            #print idx
+            self.timeline.insert(idx, event_object)
+            return idx
         except:
             pass
-        
+        #for i in range(len(self.timeline)):    
+        #    print self.timeline[i].time
+
+
     def cancel_event(self, event_object):
         """
         untuk menghapus suatu event, perlu:
@@ -49,19 +79,27 @@ class Timeline(object):
         2. event.action
         3. event.action_param
         """
-        templist=[]
         if not self.timeline:
             self.timeline.append(event_object)
             return 0
-        panjang=len(self.timeline)
-        for i in range(panjang):
-            templist.append(self.timeline[i].time)
         
-        idx=bisect.bisect_left(templist, event_object.time)
-        #print 'IDX' , idx
-        self.timeline.pop(idx)
-        return idx
-        
+        #for i in range(len(self.timeline)):
+        #        templist.append(self.timeline[i].time)
+        #indekx awal
+        idx=self.search_event_pos2(event_object)
+        awal=self.timeline[idx].time
+        #i=0
+        while awal: 
+            if awal != self.timeline[idx].time:
+                print 'cancel index not found, FATAL'
+                return idx
+            if self.timeline[idx].actor == event_object.actor and self.timeline[idx].action == event_object.action:
+                self.timeline.pop(idx)
+                #awal = False
+                return idx
+            else:
+                idx+=1
+
         #idx = 0
         #for idx, ev in enumerate(self.timeline):
         #    if ev.actor == partial_e_o.actor and ev.action == partial_e_o.action:
@@ -120,11 +158,11 @@ class Event(object):
         #self.action is a callable that returns a tuple of new event list and cancelled event list
         
     def __repr__(self):
-        return '%s %s %s.%s'%(self.time, self.type, self.actor, self.action.__name__)
+        return '%s %s  %s.%s %s'%(self.time, self.type, self.actor,  self.action.__name__, self.action_params[0])
         #return [self.type, self.time, self.actor]
     
     def __str__(self):
-        return '%s %s %s.%s'%(self.time, self.type, self.actor, self.action.__name__)
+        return '%s %s  %s.%s %s'%(self.time, self.type, self.actor,  self.action.__name__, self.action_params[0])
 
     def set_actor_list(self, actor_list):
         self.actor_list = actor_list
