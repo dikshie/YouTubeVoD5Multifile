@@ -29,13 +29,36 @@ class Timeline(object):
 
     def search_event_pos2(self, event_object):
         lo,hi = 0, len(self.timeline)
+        #mempersempit search space (bagi dua)
+        #lo, hi = 0, len(self.timeline)//2
+        counters=0
         while lo < hi:
             mid = (lo+hi)//2
             if self.timeline[mid].time < event_object.time:
                 lo = mid + 1
             else:
                 hi = mid
+            counters+=1
+        print 'BISECT COUNTERS 2 :', counters, len(self.timeline), lo
         return lo
+
+    def dual_pivot(self, event_object, lo=0, hi=0):
+        p = lo + (hi-lo)//3
+        q = lo + 2 * (hi-lo)//3
+       
+        if event_object.time < self.timeline[p].time:
+            return dual_pivot(event_object,lo,p)
+        elif (event_object.time > self.timeline[p].time and event_object.time < self.timeline[q].time):
+            return dual_pivot(event_object,p+1,q)
+        elif event_object.time > self.timeline[q].time:
+            return dual_pivot(event_object,q+1,hi)
+    
+        if key == self.timeline[p].time:
+            #print 'DUAL PIVOT', dual_count, p
+            return p
+        else:
+            #print 'DUAL PIVOT', dual_count, q
+            return q
 
          
     # def add_event2(self, event_object):
@@ -62,8 +85,9 @@ class Timeline(object):
                 self.timeline.append(event_object)
                 return 0
                 
-            idx = self.search_event_pos2(event_object)
-            #print idx
+            idx = self.search_event_pos2(event_object, 0, 0)
+            #idx = self.dual_pivot(event_object)
+            print 'indeks add', idx
             self.timeline.insert(idx, event_object)
             return idx
         except:
@@ -87,6 +111,7 @@ class Timeline(object):
         #        templist.append(self.timeline[i].time)
         #indekx awal
         idx=self.search_event_pos2(event_object)
+        print idx
         awal=self.timeline[idx].time
         #i=0
         while awal: 
