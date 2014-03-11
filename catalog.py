@@ -3,16 +3,16 @@
 import time
 import random
 import math
-import copy
 from scipy.stats import expon
 from scipy.stats import beta 
 import cPickle as pickle
-#from multiprocessing import Pool
+from multiprocessing import Pool
 
 start = 0 #mulai waktu dari 0
-end1= (30*24*3600) #1 bulan
+end1= (3*7*24*1*3600) #3 minggu
 #end2= (36*7*24*1*3600) #36 minggu
-jam = 24*100 #jumlah request 
+detik = end1 - start
+jam = detik/(3600)
 
 #format =  {'video_id': video_id, 'uploaded': uploaded , 'viewcountterminus': viewcountterminus, 'alpha': alpha_ , 'beta': beta_}
 catalog = {}
@@ -20,15 +20,6 @@ catalog = {}
 i=0
 expected=100 #expected 100 videos/hour
 multiple_of=range(200000)
-numprocessor=2
-
-#def beta_cdf(x):
-#    return beta.cdf(x,2,18,loc=0,scale=skala)
-    
-
-#def beta_pdf(x):
-#    return beta.pdf(x,2,18,loc=0,scale=skala)
-    
 
 #video catalog generator utk parameter alpha,beta,timeuplaoded sudah OK.
 while i < jam :     
@@ -37,7 +28,7 @@ while i < jam :
     #bikin event utk 500 videos (5jam)
     #we dont care about time.  
     #we only care about poisson process for these video's uploaded time.
-    tx=random.expovariate(expected)
+    tx=random.expovariate(100)
     start = start + (tx*3600)
     video_id = i
     
@@ -72,8 +63,8 @@ while i < jam :
     
     #masukkan ukuran video secara random
     #satuan MB
-    size = random.randint(1,200)
-    start2 = copy.copy(start) * 3600
+    size = random.randint(1,500)
+    
     #catalog video
     #video id , waktu diupload, view count terminus, alpha_, beta_
     #masukkan ke catalog:
@@ -83,18 +74,16 @@ while i < jam :
 
     i+=1
     
-print catalog
-print len(catalog)
+#print catalog
+#print len(catalog)
 
-
-print 'enter adding cdf/pdf for interval'
 
 #ini bagian menambahkan pdf dan cdf utk tiap selang.
 
 j=0 #asumsi iterator waktu dalam satuan detik.
-skala = 52*7*24*3600 #52 minggu dalam satuan detik.
+skala = 52*7*24*3600 #36 minggu dalam satuan detik.
 
-#ambil waktu uploaded  video id terakhir tuk ditambahkan ke akhir
+#ambil waktuuploaded terakhir video id terakhir tuk ditambahkan ke akhir
 numbervideo=len(catalog)
 video_id_terakhir = len(catalog) - 1
 
@@ -121,3 +110,5 @@ while j < akhir:
 with open('catalog.pickle', 'wb') as handle:
     pickle.dump(catalog, handle)
 handle.close()    
+
+

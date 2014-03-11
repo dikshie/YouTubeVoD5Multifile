@@ -25,8 +25,8 @@ dual_count = 0
 def dual_pivot(li,key, lo=0, hi=0):
     global dual_count
 
-    if lo==hi: 
-        return -1
+    if lo==hi or lo == hi - 1:
+        return lo
 
     p = lo + (hi-lo)//3
     q = lo + 2 * (hi-lo)//3

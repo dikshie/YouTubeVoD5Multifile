@@ -12,7 +12,7 @@ import copy
 import cPickle as pickle
 from datetime import datetime
 
-time_cur = 3600
+time_cur = 3600*5
 cache_size = 1000.0 #100M
 upload_bw = 1000.0 #100kbps
 download_bw = 1000.0 #1Mbps = 1000Kbps
@@ -21,7 +21,7 @@ event_list = event.Timeline()
 #this_cdn = cdn.CDN(contents)
 numpeer = 100000 
 #skala = 183*24*3600 #1/2 tahun * 366 hari * 24 jam * 3600 detik
-skala=30*24*3600
+skala=2*24*3600
 expected = 360 #360 peer per hour 
 multiple_of = range(100000)
 interval = (7200) 
@@ -31,7 +31,7 @@ vektor_viewcr={}
 dict_for_resume={}
 results_p = {}
 
-TIMELINE_LENGTH = 24*3600
+TIMELINE_LENGTH = 1*3600
 
 
 if __name__ == '__main__':
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     request_list_size = 0
     skala = int(skala)
 
-    file_list = [ 'request_events-1b-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
+    file_list = [ 'request_events-1t-'+str(TIMELINE_LENGTH*(i+1)) for i in range(skala/TIMELINE_LENGTH) ]
     print file_list
 
     
@@ -124,7 +124,7 @@ if __name__ == '__main__':
         event_list.append_event(ev)
 
         if (counter%TIMELINE_LENGTH)==TIMELINE_LENGTH-1:
-            filename='request_events-1b-'+ str(counter+1)
+            filename='request_events-1t-'+ str(counter+1)
             file_list.append(filename)
             with open(filename, 'wb') as f:
                 event_list.marshall()
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         counter+=1
 
     # dump the last timelines
-    filename='request_events-1b-'+ str(counter)
+    filename='request_events-1t-'+ str(counter)
     file_list.append(filename)
     with open(filename, 'wb') as f:
         event_list.marshall()

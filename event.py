@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-import bisect
-import collections
+#import bisect
+#import collections
+
 
 class Timeline(object):
     def __init__(self):
@@ -8,29 +9,9 @@ class Timeline(object):
 
     def __str__(self):
          return str(self.timeline)
-
-    #def search_event_pos(self, event_object):
-    #    NOT_FOUND = -1
-    #    lo, hi = 0, len(self.timeline)-1
-    #    lo_event = self.timeline[0]
-    #    hi_event = self.timeline[hi]
-    #    while lo <= hi:
-    #        #print 'CURPOS',lo,hi
-    #        mid = int((lo + hi)/2)
-    #        if self.timeline[mid].time < event_object.time:
-    #            lo = mid + 1
-    #        elif self.timeline[mid].time > event_object.time:
-    #            hi = mid - 1
-    #        else:
-    #            return min(lo,hi)
-    #            
-    #   return min(lo,hi)
-
-
+    
     def search_event_pos2(self, event_object):
         lo,hi = 0, len(self.timeline)
-        #mempersempit search space (bagi dua)
-        #lo, hi = 0, len(self.timeline)//2
         counters=0
         while lo < hi:
             mid = (lo+hi)//2
@@ -39,56 +20,46 @@ class Timeline(object):
             else:
                 hi = mid
             counters+=1
-        print 'BISECT COUNTERS 2 :', counters, len(self.timeline), lo
+        #print 'BISECT COUNTERS 2 :', counters, len(self.timeline), lo
         return lo
 
     def dual_pivot(self, event_object, lo=0, hi=0):
+        if lo==hi:
+            return lo
+
         p = lo + (hi-lo)//3
         q = lo + 2 * (hi-lo)//3
        
+
         if event_object.time < self.timeline[p].time:
-            return dual_pivot(event_object,lo,p)
+            return self.dual_pivot(event_object,lo,p)
+
         elif (event_object.time > self.timeline[p].time and event_object.time < self.timeline[q].time):
-            return dual_pivot(event_object,p+1,q)
+            return self.dual_pivot(event_object,p+1,q)
+
         elif event_object.time > self.timeline[q].time:
-            return dual_pivot(event_object,q+1,hi)
+            return self.dual_pivot(event_object,q+1,hi)
     
-        if key == self.timeline[p].time:
+        if event_object.time == self.timeline[p].time:
             #print 'DUAL PIVOT', dual_count, p
             return p
         else:
             #print 'DUAL PIVOT', dual_count, q
             return q
 
-         
-    # def add_event2(self, event_object):
-    #     try:
-    #         if not self.timeline:
-    #             self.timeline.append(event_object)
-    #             return 0
-                
-    #         idx = self.search_event_pos(event_object)
-    #         if idx == len(self.timeline)-1:
-    #             self.timeline.append(event_object)
-    #         else:
-    #             self.timeline.insert(idx+1, event_object)
-                
-    #         return idx+1
-    #     except:
-    #         pass
-    #     for i in range(len(self.timeline)):    
-    #         print self.timeline[i].time
-    
     def add_event(self, event_object):
         try:
             if not self.timeline:
                 self.timeline.append(event_object)
                 return 0
-                
-            idx = self.search_event_pos2(event_object, 0, 0)
-            #idx = self.dual_pivot(event_object)
-            print 'indeks add', idx
-            self.timeline.insert(idx, event_object)
+            #print event_object.time
+            #idx = self.search_event_pos2(event_object)
+            #idx = self.search_event_pos_numpy(event_object)
+            idx = self.dual_pivot(event_object,0,len(self.timeline))
+            if idx==len(self.timeline):
+                self.timeline.append(event_object)
+            else:
+                self.timeline.insert(idx, event_object)
             return idx
         except:
             pass
@@ -111,10 +82,14 @@ class Timeline(object):
         #        templist.append(self.timeline[i].time)
         #indekx awal
         idx=self.search_event_pos2(event_object)
-        print idx
+        #idx=self.dual_pivot(event_object,0,len(self.timeline))
+        #idx=idx-1
+        #print idx
         awal=self.timeline[idx].time
+        #print idx, awal, self.timeline[idx].time, awal==self.timeline[idx].time
         #i=0
         while awal: 
+            #print idx, awal, self.timeline[idx].time, awal==self.timeline[idx].time
             if awal != self.timeline[idx].time:
                 print 'cancel index not found, FATAL'
                 return idx
